@@ -14,10 +14,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Trace;
 import android.preference.PreferenceManager;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -33,19 +35,31 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
 
 public class MainActivity extends Activity {
 
-
+    private Button sj,hj;
+    private TextView t;
 //    static {
 //        System.loadLibrary("tensorflow_inference");
 //    }
@@ -77,10 +91,21 @@ public class MainActivity extends Activity {
     public static final String PREFS_NAME = "PrimeFile";
     private String mEmail;
 
+    HttpClient client = new DefaultHttpClient();
+
+    HttpResponse response;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        sj = (Button) findViewById(R.id.button_1);
+//        hj = (Button) findViewById(R.id.button_2);
+//        t =(TextView) findViewById(R.id.t);
+//        t.setMovementMethod(new ScrollingMovementMethod());
+
 
         AsyncTask<String, Void, String[]> ReturnArray= new AsynTaskRunner().execute("num1=siddhesh1");
         try {
@@ -105,6 +130,40 @@ public class MainActivity extends Activity {
         }
 
         MySQLiteHelper db = new MySQLiteHelper(this);
+        JSONArray resultarray=db.getResults();
+        try {
+            HttpPost post=new HttpPost("http://192.168.1.14:5000/?");
+            StringEntity entity=new StringEntity(resultarray.toString());
+//            System.out.println("String entity"+entity);
+            entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE,"application/json"));
+            post.setEntity(entity);
+            response = client.execute(post);
+ /*Checking response */
+            if(response!=null){
+                InputStream in = response.getEntity().getContent(); //Get the data in the entity
+
+                System.out.println("Input stream"+in);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(MainActivity.this,"inside catch",Toast.LENGTH_SHORT).show();
+            System.out.println("Exception"+e.toString());
+        }
+
+//        System.out.println("Result json"+resultarray);
+//
+//        sj.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                String json = resultarray.toString();
+//                t.setText(json);
+//
+//            }
+//        });
+
+
         l = new ArrayList<String>();
         b = new ArrayList<String>();
         final ArrayList<String> dateList = new ArrayList<String>();

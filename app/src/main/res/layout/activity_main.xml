@@ -7,19 +7,48 @@
     android:orientation="vertical"
     tools:context="com.example.tensorflowtrial.MainActivity">
 
+    <!--<LinearLayout-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal">-->
+
+        <!--<Button-->
+            <!--android:id="@+id/button_1"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Show JSON"/>-->
+
+        <!--<Button-->
+            <!--android:id="@+id/button_2"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Hide JSON"/>-->
+
+    <!--</LinearLayout>-->
+
+
+    <!--<TextView-->
+        <!--android:id="@+id/t"-->
+        <!--android:maxLines = "10000"-->
+        <!--android:scrollbars = "vertical"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="TextView"-->
+        <!--android:scrollHorizontally="true"-->
+        <!--android:textColor="#000"/>-->
 
     <Button
         android:id="@+id/greet_me_button"
-        android:layout_width="300dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="10dp"
         android:background="#133468"
         android:onClick="greetTheUser"
         android:padding="8dp"
-        android:text="Login"
-        android:textSize="17dp"
-        android:textColor="#FFF" />
+        android:text="Call API"
+        android:textColor="#FFF"
+        android:textSize="17dp" />
 
     <ProgressBar
         android:layout_width="wrap_content"

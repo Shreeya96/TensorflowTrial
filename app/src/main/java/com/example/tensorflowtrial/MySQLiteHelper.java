@@ -6,6 +6,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,10 +19,30 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     // Database Name
     private static final String DATABASE_NAME = "emails.db";
+        public Context contextnew;
+        // Books table name
+    private static final String TABLE_BOOKS = "emails";
+    private static final String DBPATH="/data/user/0/com.example.tensorflowtrial/databases/emails.db";
+
+
+    // Books Table Columns names
+    private static final String KEY_ID = "id";
+    private static final String KEY_SUBJECT = "subject";
+    private static final String KEY_BODY = "body";
+    private static final String KEY_AUTHOR = "author";
+    private static final String KEY_DATETIME="dateTime";
+    private static final String KEY_BODYHTML="bodyHTML";
+    private static final String KEY_URGENCY = "urgency";
+
+    private static final String[] COLUMNS = {KEY_ID,KEY_SUBJECT,KEY_BODY,KEY_AUTHOR,KEY_DATETIME,KEY_BODYHTML,KEY_URGENCY};
 
     public MySQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+
+        String DBPath=context.getDatabasePath(DATABASE_NAME).getAbsolutePath();
+        System.out.println("DB path"+DBPath);
     }
+
 
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -46,19 +70,6 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         this.onCreate(db);
     }
 
-    // Books table name
-    private static final String TABLE_BOOKS = "emails";
-
-    // Books Table Columns names
-    private static final String KEY_ID = "id";
-    private static final String KEY_SUBJECT = "subject";
-    private static final String KEY_BODY = "body";
-    private static final String KEY_AUTHOR = "author";
-    private static final String KEY_DATETIME="dateTime";
-    private static final String KEY_BODYHTML="bodyHTML";
-    private static final String KEY_URGENCY = "urgency";
-
-    private static final String[] COLUMNS = {KEY_ID,KEY_SUBJECT,KEY_BODY,KEY_AUTHOR,KEY_DATETIME,KEY_BODYHTML,KEY_URGENCY};
 
     public void addBook(Email email){
         // 1. get reference to writable DB
@@ -82,6 +93,66 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         // 4. close
         db.close();
     }
+
+
+
+    public JSONArray getResults()
+    {
+
+//        String myPath = DB_PATH + DB_NAME;// Set path to your database
+
+
+
+//        String myPath=this.getReadableDatabase()+DATABASE_NAME;
+
+        String myTable = TABLE_BOOKS;//Set name of your table
+
+//or you can use `context.getDatabasePath("my_db_test.db")`
+
+        SQLiteDatabase myDataBase = SQLiteDatabase.openDatabase(DBPATH, null, SQLiteDatabase.OPEN_READONLY);
+
+        String searchQuery = "SELECT  * FROM " + myTable;
+        Cursor cursor = myDataBase.rawQuery(searchQuery, null );
+
+        JSONArray resultSet     = new JSONArray();
+
+        cursor.moveToFirst();
+        while (cursor.isAfterLast() == false) {
+
+            int totalColumn = cursor.getColumnCount();
+            JSONObject rowObject = new JSONObject();
+
+            for( int i=0 ;  i< totalColumn ; i++ )
+            {
+                if( cursor.getColumnName(i) != null )
+                {
+                    try
+                    {
+                        if( cursor.getString(i) != null )
+                        {
+                            Log.d("TAG_NAME", cursor.getString(i) );
+                            rowObject.put(cursor.getColumnName(i) ,  cursor.getString(i) );
+                        }
+                        else
+                        {
+                            rowObject.put( cursor.getColumnName(i) ,  "" );
+                        }
+                    }
+                    catch( Exception e )
+                    {
+                        Log.d("TAG_NAME", e.getMessage()  );
+                    }
+                }
+            }
+            resultSet.put(rowObject);
+            cursor.moveToNext();
+        }
+        cursor.close();
+        Log.d("TAG_NAME", resultSet.toString() );
+        return resultSet;
+    }
+
+
 
     public Email getBook(int id){
 

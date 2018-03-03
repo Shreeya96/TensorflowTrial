@@ -44,7 +44,20 @@ public class Connector {
 
             URL url = new URL(url_string);
 
+            /**/
+            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            connection.connect();
+
+            String name= "name";
+//            connection.getOutputStream().write(("name= " + name).getBytes);
+
+            /**/
+
             HttpURLConnection urlconn = (HttpURLConnection) url.openConnection();
+
 //            Log.d("Authroization key" , credBase64);
 //            urlconn.setRequestProperty("Authorization","Basic " + credBase64);
 //            urlconn.setRequestProperty();

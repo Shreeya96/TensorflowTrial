@@ -37,7 +37,7 @@ public class AsynTaskRunner extends AsyncTask<String, Void, String[]>{
         JSONObject jsb= new JSONObject();
         try {
             Log.d("strings....",strings[0]);
-            Connector cnn = new Connector("http://192.168.1.8:5000/?"+strings[0]);
+            Connector cnn = new Connector("http://192.168.1.14:5000/?"+strings[0]);
             String output = cnn.getDetails();
             Log.d("msg",output);
             jsb = new JSONObject(output);
