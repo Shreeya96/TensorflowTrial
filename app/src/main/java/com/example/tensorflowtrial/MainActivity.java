@@ -187,8 +187,7 @@ public class MainActivity extends Activity {
 
 //                String test="Aakash";
 //                String test=fullEmailList.get(11).toString();
-                String test=fullEmailList.toString();
-                String space = " ";
+                String test=fullEmailList.get(11).toString();
                 String toJson = gson.toJson(test);
                 urlString="http://192.168.1.8:5000/?num1="+toJson;
 
