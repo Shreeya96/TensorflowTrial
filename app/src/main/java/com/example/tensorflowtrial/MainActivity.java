@@ -33,10 +33,14 @@ import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.gson.Gson;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,6 +62,8 @@ import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
 
 public class MainActivity extends Activity {
 
+    String urlString="http://192.168.1.8:5000/?num1=%22siddhesh1%22";
+
     private Button sj,hj;
     private TextView t;
 //    static {
@@ -75,6 +81,7 @@ public class MainActivity extends Activity {
     private final static String GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
     private final static String SCOPE = "oauth2:" +  GMAIL_SCOPE;
 
+    private Button sendButton;
 
     private TextView mOut;
     private ListView lView;
@@ -95,11 +102,15 @@ public class MainActivity extends Activity {
 
     HttpResponse response;
 
+    Gson gson = new Gson();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        sendButton = (Button) findViewById(R.id.sendButton);
 
 //        sj = (Button) findViewById(R.id.button_1);
 //        hj = (Button) findViewById(R.id.button_2);
@@ -130,40 +141,6 @@ public class MainActivity extends Activity {
         }
 
         MySQLiteHelper db = new MySQLiteHelper(this);
-        JSONArray resultarray=db.getResults();
-        try {
-            HttpPost post=new HttpPost("http://192.168.1.14:5000/?");
-            StringEntity entity=new StringEntity(resultarray.toString());
-//            System.out.println("String entity"+entity);
-            entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE,"application/json"));
-            post.setEntity(entity);
-            response = client.execute(post);
- /*Checking response */
-            if(response!=null){
-                InputStream in = response.getEntity().getContent(); //Get the data in the entity
-
-                System.out.println("Input stream"+in);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(MainActivity.this,"inside catch",Toast.LENGTH_SHORT).show();
-            System.out.println("Exception"+e.toString());
-        }
-
-//        System.out.println("Result json"+resultarray);
-//
-//        sj.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                String json = resultarray.toString();
-//                t.setText(json);
-//
-//            }
-//        });
-
-
         l = new ArrayList<String>();
         b = new ArrayList<String>();
         final ArrayList<String> dateList = new ArrayList<String>();
@@ -178,7 +155,13 @@ public class MainActivity extends Activity {
             dateList.add(e.getDateTime());
 
             //fullemaillist has subject and body..concatenate other details if needed.
-            fullEmailList.add(e.getSubject()+e.getBody());
+            fullEmailList.add(
+                       "Author: " + e.getAuthor()
+                     + "Date: " + e.getDateTime()
+                     + "Subject: " + e.getSubject()
+//                     + "Body: " + e.getBody()
+                    );
+
         }
 
 //        String s=fullEmailList.get(3).toString().trim();
@@ -195,16 +178,24 @@ public class MainActivity extends Activity {
 //
 //        inferenceInterface.fetch(OUTPUT_NODE,res);
 
-
-
-
 //        System.out.println("Result"+Byte.toString(res[0])+Byte.toString(res[1])+Byte.toString(res[2]));
-
-
 //        }
 
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+//                String test="Aakash";
+//                String test=fullEmailList.get(11).toString();
+                String test=fullEmailList.toString();
+                String space = " ";
+                String toJson = gson.toJson(test);
+                urlString="http://192.168.1.8:5000/?num1="+toJson;
 
+                new SendingTask().execute();
+
+            }
+        });
 
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, l );
@@ -450,6 +441,44 @@ public class MainActivity extends Activity {
         }
 
     }
+
+    public class SendingTask extends AsyncTask<String,String,String>
+    {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+            try {
+
+                URL url=new URL(urlString);
+                HttpURLConnection connection=(HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.connect();
+
+                BufferedReader bfReader=new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+                String value=bfReader.readLine();
+                System.out.println("Value received "+ value);
+
+            }catch (Exception e)
+            {
+                System.out.println(e);
+            }
+
+            return null;
+        }
+
+    }
+
 
 
 }

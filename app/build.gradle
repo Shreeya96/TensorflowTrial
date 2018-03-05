@@ -32,6 +32,7 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:25.0.1'
+    compile 'com.google.code.gson:gson:2.3'
     compile 'pub.devrel:easypermissions:0.3.0'
     compile 'com.google.android.gms:play-services:11.8.0'
     compile 'com.google.apis:google-api-services-gmail:v1-rev28-1.20.0'
