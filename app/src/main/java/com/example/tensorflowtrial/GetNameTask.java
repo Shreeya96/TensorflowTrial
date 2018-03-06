@@ -1,11 +1,10 @@
 package com.example.tensorflowtrial;
 
-import android.icu.util.IndianCalendar;
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
-import com.example.tensorflowtrial.MainActivity;
-import com.example.tensorflowtrial.MySQLiteHelper;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.UserRecoverableAuthException;
@@ -15,7 +14,6 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
-import com.google.api.client.util.DateTime;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.ListThreadsResponse;
 import com.google.api.services.gmail.model.Message;
@@ -30,28 +28,25 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
-import java.text.ParseException;
 
 import java.util.Date;
-import java.util.TimeZone;
 
 public class GetNameTask extends AsyncTask<Void,Void,Void> {
     private static final String TAG = "TokenInfoTask";
     private static final String NAME_KEY = "given_name";
     protected MainActivity mActivity;
-
     protected String mScope;
     protected String mEmail;
     public String dateTime;
+    Activity mContext = null;
 
     GetNameTask(MainActivity activity, String email, String scope) {
         this.mActivity = activity;
         this.mScope = scope;
         this.mEmail = email;
     }
+
 
     @Override
     protected Void doInBackground(Void... params) {

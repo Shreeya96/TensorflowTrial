@@ -152,17 +152,17 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-//                String test="Aakash";
-//                String test=fullEmailList.get(11).toString();
+
+//                String test=fullEmailList.get(0).toString();
                 String test="";
                 for(int i=0;i<fullEmailList.size();i++)
                 {
 
                     test=test+fullEmailList.get(i).toString();
                 }
+
                 String toJson = gson.toJson(test);
                 urlString="http://192.168.1.8:5000/?num1="+toJson;
-                
                 new SendingTask().execute();
 
             }
