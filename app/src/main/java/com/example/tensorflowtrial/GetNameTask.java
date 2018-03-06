@@ -38,7 +38,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class GetNameTask extends AsyncTask<Void, Void, Void> {
+public class GetNameTask extends AsyncTask<Void,Void,Void> {
     private static final String TAG = "TokenInfoTask";
     private static final String NAME_KEY = "given_name";
     protected MainActivity mActivity;
@@ -214,9 +214,18 @@ public class GetNameTask extends AsyncTask<Void, Void, Void> {
 
             for( MessagePartHeader h : messageHeader) {
                 if(h.getName().equals("Subject")){
-                    sub = h.getValue();
+                    if(testing.size()>2) {
+                        sub="Re:"+h.getValue();
+                    }
+                    else if(h.getValue()==""){sub="No subject";}
+                    else {
+
+                        sub=h.getValue();
+                    }
+
+
                     l.add(sub);
-                    subs.add(h.getValue());
+                    subs.add(sub);
 
                     mActivity.list(l);
                     break;

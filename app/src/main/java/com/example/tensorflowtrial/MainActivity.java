@@ -112,23 +112,6 @@ public class MainActivity extends Activity {
 
         sendButton = (Button) findViewById(R.id.sendButton);
 
-//        sj = (Button) findViewById(R.id.button_1);
-//        hj = (Button) findViewById(R.id.button_2);
-//        t =(TextView) findViewById(R.id.t);
-//        t.setMovementMethod(new ScrollingMovementMethod());
-
-
-        AsyncTask<String, Void, String[]> ReturnArray= new AsynTaskRunner().execute("num1=siddhesh1");
-        try {
-
-            String returnArry[] = ReturnArray.get();
-            Log.d("assffegw",returnArry[0]+returnArry[1]);
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
 
         /***/
 
@@ -164,22 +147,6 @@ public class MainActivity extends Activity {
 
         }
 
-//        String s=fullEmailList.get(3).toString().trim();
-//        final byte[] bytearray1 = s.getBytes();
-
-//        System.out.println("byte array"+bytearray);
-//        byte[] res={0,0};
-
-//        Trace.beginSection("feed");
-//        inferenceInterface.feed(INPUT_NODE,bytearray1,1,370);
-//        Trace.endSection();
-//
-//        inferenceInterface.run(new String[]{OUTPUT_NODE});
-//
-//        inferenceInterface.fetch(OUTPUT_NODE,res);
-
-//        System.out.println("Result"+Byte.toString(res[0])+Byte.toString(res[1])+Byte.toString(res[2]));
-//        }
 
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -187,10 +154,15 @@ public class MainActivity extends Activity {
 
 //                String test="Aakash";
 //                String test=fullEmailList.get(11).toString();
-                String test=fullEmailList.get(11).toString();
+                String test="";
+                for(int i=0;i<fullEmailList.size();i++)
+                {
+
+                    test=test+fullEmailList.get(i).toString();
+                }
                 String toJson = gson.toJson(test);
                 urlString="http://192.168.1.8:5000/?num1="+toJson;
-
+                
                 new SendingTask().execute();
 
             }
