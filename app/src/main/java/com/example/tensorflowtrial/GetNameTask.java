@@ -168,47 +168,39 @@ public class GetNameTask extends AsyncTask<Void,Void,Void> {
 
                 if(test.getPayload().getMimeType().contains("multipart")){
                     builder = new StringBuilder();
-                    for(MessagePart part : test.getPayload().getParts()){
-                        if (part.getMimeType().contains("multipart")) {
-                            for (MessagePart part2 : part.getParts()) {
-
-                                if (part2.getMimeType().equals("text/html"))
+                    for(MessagePart messagePart : test.getPayload().getParts())
+                    {
+                        if (messagePart.getMimeType().contains("multipart"))
+                        {
+                            for (MessagePart part2 : messagePart.getParts())
+                            {
+                                if (part2.getMimeType().equals("text/plain"))
                                 {
-                                     body_html=new String(
-                                            Base64.decodeBase64(part2.getBody().getData()));
+                                    builder.append(part2.getBody().getData());
 
-
-
-                                }
-
-                                if (part2.getMimeType().equals("text/plain")) {
-                                    builder.append(new String(
-                                            Base64.decodeBase64(part2.getBody().getData())));
                                 }
                             }
-                        }else if (part.getMimeType().equals("text/plain")) {
-                            builder.append(new String(Base64.decodeBase64(part.getBody().getData())));
+                        }else if (messagePart.getMimeType().equals("text/plain")) {
+                            builder.append(messagePart.getBody().getData());
                         }
-                        else if (part.getMimeType().equals("text/html")) {
-                            body_html=new String(
-                                    Base64.decodeBase64(part.getBody().getData()));
-                        }
+
+
                     }
 
+
                 }else{
-                    body2 = new String(Base64.decodeBase64(test.getPayload().getBody().getData()));
+                    builder.append(test.getPayload().getBody().getData());
                 }
             }
-            if(!body.toString().isEmpty()){
-                body.add(builder.toString());
-                bod = builder.toString();
-            }else{
-                body.add(body2);
-                bod = body2;
-            }
+            byte[] bodyBytes = Base64.decodeBase64(builder.toString());
+            String text = new String(bodyBytes, "UTF-8");
+            body.add(text);
+            bod=text;
 
-            for( MessagePartHeader h : messageHeader) {
-                if(h.getName().equals("Subject")){
+            for( MessagePartHeader h : messageHeader)
+            {
+                if(h.getName().equals("Subject"))
+                {
                     if(testing.size()>2) {
                         sub="Re:"+h.getValue();
                     }
@@ -223,11 +215,14 @@ public class GetNameTask extends AsyncTask<Void,Void,Void> {
                     subs.add(sub);
 
                     mActivity.list(l);
-                    break;
-                }else if(h.getName().equals("Date")){
+
                 }
-                else if(h.getName().equals("From")){
-                    author = h.getValue();
+                else if (h.getName().equals("From"))
+                {
+
+                    if(h.getValue()==""){author="no Author";}
+                    else {author=h.getValue();}
+
                     fromList.add(author);
                 }
             }

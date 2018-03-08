@@ -14,12 +14,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Trace;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -43,6 +45,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -62,26 +65,11 @@ import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
 
 public class MainActivity extends Activity {
 
-    String urlString="http://192.168.1.8:5000/?num1=%22siddhesh1%22";
-
-    private Button sj,hj;
-    private TextView t;
-//    static {
-//        System.loadLibrary("tensorflow_inference");
-//    }
-//
-//    private TensorFlowInferenceInterface inferenceInterface;
-//
-//    private static final String MODEL_FILE = "file:///android_asset/optimized_tfdroid.pb";
-//    private static final String INPUT_NODE = "input_1902";
-//    private static final String OUTPUT_NODE = "output_1902";
-//    private static final int[] INPUT_SIZE = {1,3000};
+//   public static String urlString="http://192.168.1.8:5000/?num1=%22siddhesh1%22";
 
     private static final String TAG = "PlayHelloActivity";
     private final static String GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
     private final static String SCOPE = "oauth2:" +  GMAIL_SCOPE;
-
-    private Button sendButton;
 
     private TextView mOut;
     private ListView lView;
@@ -96,28 +84,25 @@ public class MainActivity extends Activity {
     static final int REQUEST_CODE_RECOVER_FROM_AUTH_ERROR = 1001;
     static final int REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR = 1002;
     public static final String PREFS_NAME = "PrimeFile";
+
+    private EditText getmail;
+    private Button sendButton;
     private String mEmail;
-
-    HttpClient client = new DefaultHttpClient();
-
-    HttpResponse response;
-
     Gson gson = new Gson();
-
+//
+//    public MainActivity() {
+//    }
+//
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getmail = (EditText) findViewById(R.id.getmail);
         sendButton = (Button) findViewById(R.id.sendButton);
 
-
-        /***/
-
-//            inferenceInterface=new TensorFlowInferenceInterface(getAssets(),MODEL_FILE);
-
-        String email = loadSavedPreferences();
+        final String email = loadSavedPreferences();
         if(!email.equals("EmailStuff")){
             mEmail = loadSavedPreferences();
 //            Log.d("Email2", mEmail);
@@ -129,7 +114,7 @@ public class MainActivity extends Activity {
         final ArrayList<String> dateList = new ArrayList<String>();
         fList = new ArrayList<String>();
         fullEmailList=new ArrayList<String>();
-        List<Email> list = db.getAllBooks();
+        final List<Email> list = db.getAllBooks();
 
         for(Email e : list){
             l.add(e.getSubject());
@@ -140,34 +125,53 @@ public class MainActivity extends Activity {
             //fullemaillist has subject and body..concatenate other details if needed.
             fullEmailList.add(
                        "Author: " + e.getAuthor()
-                     + "Date: " + e.getDateTime()
-                     + "Subject: " + e.getSubject()
+//                     + " Date: " + e.getDateTime()
+//                     + " Subject: " + e.getSubject()
 //                     + "Body: " + e.getBody()
                     );
 
         }
 
-
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+//                int size = fullEmailList.size();
+//                String allEmails = " ";
+////                System.out.println("list size"+fullEmailList.size());
+//                JSONObject myJSON;
+//                for(int i = 0 ; i < size; i++){
+//
+////                    allEmails = allEmails + fullEmailList.get(i).toString();
+//                    final JSONObject email1 = myJSON.put("Email", fullEmailList.get(i));
+//                }
+//                    int n = 4063;
+//                    int m = 4063;
+//                String s = "a";
+//                String t = "b";
+//                String yo = TextUtils.join("", Collections.nCopies(n, s));
+//                String lo = TextUtils.join("", Collections.nCopies(m, t));
+//////                for(int i = 0 ; i <=9000  ; i++){
+//////
+//////                    String x  = "x";
+//////                }
+//              System.out.println(yo+lo);
+//                getmail.setText(allEmails);
+//                int length = getmail.length();
+//                String convert = String.valueOf(length);
+//                System.out.println("CONVERT " + convert);
+                Object[] objects = fullEmailList.toArray();
 
-//                String test=fullEmailList.get(0).toString();
-                String test="";
-                for(int i=0;i<fullEmailList.size();i++)
-                {
-
-                    test=test+fullEmailList.get(i).toString();
-                }
-
-                String toJson = gson.toJson(test);
-                urlString="http://192.168.1.8:5000/?num1="+toJson;
-                new SendingTask().execute();
-
+                // Printing array of objects
+//                for (Object obj : objects)
+//                {  System.out.print(obj + " ");
+//
+//
+//                }
+//                urlString = "http://192.168.1.8:5000/?num1=" +fullEmailList.toArray();
+//                new SendingTask().execute();
             }
         });
-
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, l );
 
@@ -232,6 +236,8 @@ public class MainActivity extends Activity {
     public void greetTheUser(View view) {
         getUsername();
     }
+
+
 
     private void savePreferences(String key, String value) {
         SharedPreferences sharedPreferences = PreferenceManager
@@ -303,6 +309,7 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 lView.setAdapter(arrayAdapter);
+
             }
         });
     }
@@ -413,42 +420,42 @@ public class MainActivity extends Activity {
 
     }
 
-    public class SendingTask extends AsyncTask<String,String,String>
-    {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-        }
-
-        @Override
-        protected String doInBackground(String... strings) {
-
-            try {
-
-                URL url=new URL(urlString);
-                HttpURLConnection connection=(HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.connect();
-
-                BufferedReader bfReader=new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-                String value=bfReader.readLine();
-                System.out.println("Value received "+ value);
-
-            }catch (Exception e)
-            {
-                System.out.println(e);
-            }
-
-            return null;
-        }
-
-    }
+//    public class SendingTask extends AsyncTask<String,String,String>
+//    {
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String s) {
+//            super.onPostExecute(s);
+//        }
+//
+//        @Override
+//        protected String doInBackground(String... strings) {
+//
+//            try {
+//
+//                URL url=new URL(urlString);
+//                HttpURLConnection connection=(HttpURLConnection) url.openConnection();
+//                connection.setRequestMethod("GET");
+//                connection.connect();
+//
+//                BufferedReader bfReader=new BufferedReader(new InputStreamReader(connection.getInputStream()));
+//
+//                String value=bfReader.readLine();
+//                System.out.println("VALUE RECEIVED" + value);
+//
+//            }catch (Exception e)
+//            {
+//                System.out.println(e);
+//            }
+//
+//            return null;
+//        }
+//
+//    }
 
 
 

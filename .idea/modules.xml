@@ -2,13 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://C:\Users\hp\BE\tf\FlaskMail\.idea\EmailFlask.iml" filepath="C:\Users\hp\BE\tf\FlaskMail\.idea\EmailFlask.iml" />
       <module fileurl="file://$PROJECT_DIR$/FlaskMail.iml" filepath="$PROJECT_DIR$/FlaskMail.iml" />
-      <module fileurl="file://C:\Users\hp\BE\tf\EmailFlask\TensorflowTrial.iml" filepath="C:\Users\hp\BE\tf\EmailFlask\TensorflowTrial.iml" />
       <module fileurl="file://$PROJECT_DIR$/../EmailFlask/app/app.iml" filepath="$PROJECT_DIR$/../EmailFlask/app/app.iml" />
-      <module fileurl="file://C:\Users\hp\BE\tf\FlaskMail\app\app.iml" filepath="C:\Users\hp\BE\tf\FlaskMail\app\app.iml" />
       <module fileurl="file://$PROJECT_DIR$/../EmailFlask/tensorflow/tensorflow.iml" filepath="$PROJECT_DIR$/../EmailFlask/tensorflow/tensorflow.iml" />
-      <module fileurl="file://C:\Users\hp\BE\tf\FlaskMail\tensorflow\tensorflow.iml" filepath="C:\Users\hp\BE\tf\FlaskMail\tensorflow\tensorflow.iml" />
     </modules>
   </component>
 </project>

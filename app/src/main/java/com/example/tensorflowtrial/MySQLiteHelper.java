@@ -40,7 +40,6 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
         String DBPath=context.getDatabasePath(DATABASE_NAME).getAbsolutePath();
-        System.out.println("DB path"+DBPath);
     }
 
 
