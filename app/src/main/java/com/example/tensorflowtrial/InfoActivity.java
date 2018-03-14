@@ -22,7 +22,7 @@ import java.net.URL;
  * Created by User on 4/29/2015.
  */
 public class InfoActivity extends Activity {
-    public static String urlString="http://192.168.1.8:5000/?num1=%22siddhesh1%22";
+    public static String urlString="http://192.168.1.4:5000/?num1=%22siddhesh1%22";
 
     Button sendOneEmail;
     TextView header;
@@ -70,48 +70,48 @@ public class InfoActivity extends Activity {
 
                 Toast.makeText(InfoActivity.this, "Sent this email to flask server", Toast.LENGTH_LONG).show();
 
-                                urlString = "http://192.168.1.8:5000/?num1=" +email;
+//                                urlString = "http://192.168.1.4:5000/?num1=" +email;
 
-                new SendingTask().execute();
+//                new SendingTask().execute();
 
             }
         });
     }
 
-    public class SendingTask extends AsyncTask<String,String,String>
-    {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-        }
-
-        @Override
-        protected String doInBackground(String... strings) {
-
-            try {
-
-                URL url=new URL(urlString);
-                HttpURLConnection connection=(HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.connect();
-
-                BufferedReader bfReader=new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-                String value=bfReader.readLine();
-                System.out.println("VALUE RECEIVED" + value);
-
-            }catch (Exception e)
-            {
-                System.out.println(e);
-            }
-
-            return null;
-        }
-
-    }
+//    public class SendingTask extends AsyncTask<String,String,String>
+//    {
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String s) {
+//            super.onPostExecute(s);
+//        }
+//
+//        @Override
+//        protected String doInBackground(String... strings) {
+//
+//            try {
+//
+//                URL url=new URL(urlString);
+//                HttpURLConnection connection=(HttpURLConnection) url.openConnection();
+//                connection.setRequestMethod("GET");
+//                connection.connect();
+//
+//                BufferedReader bfReader=new BufferedReader(new InputStreamReader(connection.getInputStream()));
+//
+//                String value=bfReader.readLine();
+//                System.out.println("VALUE RECEIVED" + value);
+//
+//            }catch (Exception e)
+//            {
+//                System.out.println(e);
+//            }
+//
+//            return null;
+//        }
+//
+//    }
 }

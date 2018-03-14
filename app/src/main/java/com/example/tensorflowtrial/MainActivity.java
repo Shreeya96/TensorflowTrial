@@ -1,19 +1,39 @@
 package com.example.tensorflowtrial;
 
 import android.accounts.AccountManager;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import android.os.Bundle;
+import android.app.Activity;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.os.Bundle;
 import android.os.Trace;
 import android.preference.PreferenceManager;
+import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -38,17 +58,26 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.http.HttpResponse;
@@ -65,7 +94,9 @@ import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
 
 public class MainActivity extends Activity {
 
-//   public static String urlString="http://192.168.1.8:5000/?num1=%22siddhesh1%22";
+//   public static String urlString="http://192.168.1.6:5000/?emailList=sid";
+    public static String urlString;
+    public static String priorityResult;
 
     private static final String TAG = "PlayHelloActivity";
     private final static String GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
@@ -85,22 +116,33 @@ public class MainActivity extends Activity {
     static final int REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR = 1002;
     public static final String PREFS_NAME = "PrimeFile";
 
-    private EditText getmail;
-    private Button sendButton;
+    Button blueButton;
+    Button prioritiseButton;
     private String mEmail;
     Gson gson = new Gson();
+
+public String allEmails = " ";
+//    public String path = Environment.getExternalStorageDirectory().getAbsolutePath()
+//            ;
+
+
+    static final int READ_BLOCK_SIZE = 100;
 //
 //    public MainActivity() {
 //    }
 //
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getmail = (EditText) findViewById(R.id.getmail);
-        sendButton = (Button) findViewById(R.id.sendButton);
+//        File dir = new File(path);
+//        dir.mkdirs();
+
+        blueButton = (Button) findViewById(R.id.sendButton);
+        prioritiseButton=(Button) findViewById(R.id.prioritiseButton);
 
         final String email = loadSavedPreferences();
         if(!email.equals("EmailStuff")){
@@ -116,7 +158,7 @@ public class MainActivity extends Activity {
         fullEmailList=new ArrayList<String>();
         final List<Email> list = db.getAllBooks();
 
-        for(Email e : list){
+        for(Email e : list) {
             l.add(e.getSubject());
             b.add(e.getBody());
             fList.add(e.getAuthor());
@@ -124,54 +166,56 @@ public class MainActivity extends Activity {
 
             //fullemaillist has subject and body..concatenate other details if needed.
             fullEmailList.add(
-                       "Author: " + e.getAuthor()
-//                     + " Date: " + e.getDateTime()
-//                     + " Subject: " + e.getSubject()
+                    "Author: " + e.getAuthor()
+                     + " Date: " + e.getDateTime()
+                     + " Subject: " + e.getSubject()
 //                     + "Body: " + e.getBody()
-                    );
-
+            );
         }
 
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+           blueButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-//                int size = fullEmailList.size();
-//                String allEmails = " ";
-////                System.out.println("list size"+fullEmailList.size());
-//                JSONObject myJSON;
-//                for(int i = 0 ; i < size; i++){
-//
-////                    allEmails = allEmails + fullEmailList.get(i).toString();
-//                    final JSONObject email1 = myJSON.put("Email", fullEmailList.get(i));
-//                }
-//                    int n = 4063;
-//                    int m = 4063;
-//                String s = "a";
-//                String t = "b";
-//                String yo = TextUtils.join("", Collections.nCopies(n, s));
-//                String lo = TextUtils.join("", Collections.nCopies(m, t));
-//////                for(int i = 0 ; i <=9000  ; i++){
-//////
-//////                    String x  = "x";
-//////                }
-//              System.out.println(yo+lo);
-//                getmail.setText(allEmails);
-//                int length = getmail.length();
-//                String convert = String.valueOf(length);
-//                System.out.println("CONVERT " + convert);
-                Object[] objects = fullEmailList.toArray();
 
-                // Printing array of objects
-//                for (Object obj : objects)
-//                {  System.out.print(obj + " ");
-//
-//
-//                }
-//                urlString = "http://192.168.1.8:5000/?num1=" +fullEmailList.toArray();
-//                new SendingTask().execute();
-            }
-        });
+                 System.out.println("Send button clicked");
+                    int size = fullEmailList.size();
+                    System.out.println("Size of email list " + size);
+                    for(int i = 0 ; i < size; i++)
+                    {
+
+                        allEmails = allEmails + fullEmailList.get(i).toString();
+                        //                    final JSONObject email1 = myJSON.put("Email", fullEmailList.get(i));
+                    }
+
+//                    System.out.println("All emails"+allEmails);
+
+                    String paramValue = allEmails;
+                    try {
+                        urlString = "http://192.168.2.5:5000/?emailList=" + java.net.URLEncoder.encode(paramValue, "UTF-8");
+                        //urlString = "http://127.0.0.1:5000/?emailList=" + java.net.URLEncoder.encode(paramValue, "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    new SendingTask().execute();
+
+
+                }
+
+            });
+
+            prioritiseButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    Intent prioIntent=new Intent(MainActivity.this,PriorityActivity.class);
+                    prioIntent.putExtra("PrioResult",priorityResult);
+
+                    startActivity(prioIntent);
+                }
+            });
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, l );
 
@@ -420,42 +464,45 @@ public class MainActivity extends Activity {
 
     }
 
-//    public class SendingTask extends AsyncTask<String,String,String>
-//    {
-//        @Override
-//        protected void onPreExecute() {
-//            super.onPreExecute();
-//        }
-//
-//        @Override
-//        protected void onPostExecute(String s) {
-//            super.onPostExecute(s);
-//        }
-//
-//        @Override
-//        protected String doInBackground(String... strings) {
-//
-//            try {
-//
-//                URL url=new URL(urlString);
-//                HttpURLConnection connection=(HttpURLConnection) url.openConnection();
-//                connection.setRequestMethod("GET");
-//                connection.connect();
-//
-//                BufferedReader bfReader=new BufferedReader(new InputStreamReader(connection.getInputStream()));
-//
-//                String value=bfReader.readLine();
-//                System.out.println("VALUE RECEIVED" + value);
-//
-//            }catch (Exception e)
-//            {
-//                System.out.println(e);
-//            }
-//
-//            return null;
-//        }
-//
-//    }
+    public class SendingTask extends AsyncTask<String,String,String>
+    {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+            try {
+
+                URL url=new URL(urlString);
+                HttpURLConnection connection=(HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.connect();
+
+                BufferedReader bfReader=new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+                String value=bfReader.readLine();
+                priorityResult=value;
+                System.out.println("VALUE RECEIVED\n");
+                System.out.println(value);
+
+
+            }catch (Exception e)
+            {
+                System.out.println(e);
+            }
+
+            return null;
+        }
+
+    }
 
 
 
