@@ -5,33 +5,6 @@
     android:layout_margin="5dp"
     android:orientation="vertical">
 
-    <Button
-        android:id="@+id/sendOneEmail"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="5dp"
-        android:layout_marginTop="10dp"
-        android:background="#133468"
-        android:padding="8dp"
-        android:text="SEND ONE EMAIL"
-        android:textColor="#FFF"
-        android:textSize="17dp" />
-
-    <TextView
-        android:id="@+id/emailStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:elevation="2dp"
-        android:background="@drawable/raisedemail"
-        android:padding="8dp"
-        android:text="Email Status"
-        android:textColor="#000"
-        android:textSize="16dp" />
-
-
-
     <TextView
         android:id="@+id/header"
         android:layout_width="match_parent"

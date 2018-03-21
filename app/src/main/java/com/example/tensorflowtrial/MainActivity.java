@@ -10,10 +10,12 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
+
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -21,10 +23,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -70,6 +76,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -92,18 +99,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
-//   public static String urlString="http://192.168.1.6:5000/?emailList=sid";
+    //   public static String urlString="http://192.168.1.6:5000/?emailList=sid";
     public static String urlString;
     public static String priorityResult;
+    public static String spamResultstring;
 
     private static final String TAG = "PlayHelloActivity";
     private final static String GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
-    private final static String SCOPE = "oauth2:" +  GMAIL_SCOPE;
-
+    private final static String SCOPE = "oauth2:" + GMAIL_SCOPE;
     private TextView mOut;
-    private ListView lView;
+    private TextView spamResult;
+    private ListView lView,listViewPrio,listViewSpam;
     private ProgressBar spinner;
     private ArrayList<String> l;
     private ArrayList<String> b;
@@ -116,12 +124,16 @@ public class MainActivity extends Activity {
     static final int REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR = 1002;
     public static final String PREFS_NAME = "PrimeFile";
 
-    Button blueButton;
+    Button sendPrio;
+    Button sendSpam;
     Button prioritiseButton;
+    Button spamButton;
+
+    Button callapi;
     private String mEmail;
     Gson gson = new Gson();
 
-public String allEmails = " ";
+    public String allEmails = " ";
 //    public String path = Environment.getExternalStorageDirectory().getAbsolutePath()
 //            ;
 
@@ -138,14 +150,32 @@ public String allEmails = " ";
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        File dir = new File(path);
-//        dir.mkdirs();
+        callapi = (Button) findViewById(R.id.greet_me_button);
+        sendPrio = (Button) findViewById(R.id.sendPrioButton);
+        sendSpam = (Button) findViewById(R.id.sendSpamButton);
+        prioritiseButton = (Button) findViewById(R.id.prioritiseButton);
+        spamButton = (Button) findViewById(R.id.spamButton);
 
-        blueButton = (Button) findViewById(R.id.sendButton);
-        prioritiseButton=(Button) findViewById(R.id.prioritiseButton);
+        listViewPrio = (ListView) findViewById(R.id.listViewPrio);
+        listViewSpam = (ListView) findViewById(R.id.listViewSpam);
+
+        sendPrio.setVisibility(View.GONE);
+        sendSpam.setVisibility(View.GONE);
+
+        listViewPrio.setVisibility(View.GONE);
+
+        listViewSpam.setVisibility(View.GONE);
+
+        prioritiseButton.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        callapi.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        spamButton.setBackgroundColor(Color.parseColor("#FFFFFF"));
+
+        //////////////////////
+
+        ////////////////////////
 
         final String email = loadSavedPreferences();
-        if(!email.equals("EmailStuff")){
+        if (!email.equals("EmailStuff")) {
             mEmail = loadSavedPreferences();
 //            Log.d("Email2", mEmail);
         }
@@ -155,10 +185,10 @@ public String allEmails = " ";
         b = new ArrayList<String>();
         final ArrayList<String> dateList = new ArrayList<String>();
         fList = new ArrayList<String>();
-        fullEmailList=new ArrayList<String>();
+        fullEmailList = new ArrayList<String>();
         final List<Email> list = db.getAllBooks();
 
-        for(Email e : list) {
+        for (Email e : list) {
             l.add(e.getSubject());
             b.add(e.getBody());
             fList.add(e.getAuthor());
@@ -167,62 +197,174 @@ public String allEmails = " ";
             //fullemaillist has subject and body..concatenate other details if needed.
             fullEmailList.add(
                     "Author: " + e.getAuthor()
-                     + " Date: " + e.getDateTime()
-                     + " Subject: " + e.getSubject()
-//                     + "Body: " + e.getBody()
+                            + " Date: " + e.getDateTime()
+                            + " Subject: " + e.getSubject()
+                     + "Body: " + e.getBody()
             );
         }
 
-           blueButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+        sendPrio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
 
-                 System.out.println("Send button clicked");
-                    int size = fullEmailList.size();
-                    System.out.println("Size of email list " + size);
-                    for(int i = 0 ; i < size; i++)
-                    {
+                System.out.println("Send  Prio button clicked");
+                int size = fullEmailList.size();
+                System.out.println("Size of email list " + size);
+                for (int i = 0; i < size; i++) {
 
-                        allEmails = allEmails + fullEmailList.get(i).toString();
-                        //                    final JSONObject email1 = myJSON.put("Email", fullEmailList.get(i));
-                    }
+                    allEmails = allEmails + fullEmailList.get(i).toString();
+                    //                    final JSONObject email1 = myJSON.put("Email", fullEmailList.get(i));
+                }
 
 //                    System.out.println("All emails"+allEmails);
 
-                    String paramValue = allEmails;
-                    try {
-                        urlString = "http://192.168.2.5:5000/?emailList=" + java.net.URLEncoder.encode(paramValue, "UTF-8");
-                        //urlString = "http://127.0.0.1:5000/?emailList=" + java.net.URLEncoder.encode(paramValue, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-
-
-                    new SendingTask().execute();
-
-
+                String paramValue = allEmails;
+                try {
+                    urlString = "http://192.168.1.9:5000/priority?emailList=" + java.net.URLEncoder.encode(paramValue, "UTF-8");
+//                        urlString = "http://127.0.0.1:5000/?emailList=" + java.net.URLEncoder.encode(paramValue, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
                 }
 
-            });
 
-            prioritiseButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
+                new SendingPrioTask().execute();
 
-                    Intent prioIntent=new Intent(MainActivity.this,PriorityActivity.class);
-                    prioIntent.putExtra("PrioResult",priorityResult);
 
-                    startActivity(prioIntent);
+            }
+
+        });
+
+
+        sendSpam.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("Send spam button clicked");
+                int size = fullEmailList.size();
+                System.out.println("Size of email list " + size);
+                for (int i = 0; i < size; i++) {
+
+                    allEmails = allEmails + fullEmailList.get(i).toString();
+                    //                    final JSONObject email1 = myJSON.put("Email", fullEmailList.get(i));
                 }
-            });
 
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, l );
+//                    System.out.println("All emails"+allEmails);
+
+                String paramValue = allEmails;
+                try {
+                    urlString = "http://192.168.1.9:5000/spamham?emailList2=" + java.net.URLEncoder.encode(paramValue, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+
+
+                new SendingSpamTask().execute();
+            }
+        });
+
+        callapi.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                lView.setVisibility(View.VISIBLE);
+                listViewPrio.setVisibility(View.GONE);
+                listViewSpam.setVisibility(View.GONE);
+
+                callapi.setTextColor(Color.parseColor("#133468"));
+                callapi.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                prioritiseButton.setBackgroundColor(Color.parseColor("#133468"));
+                spamButton.setBackgroundColor(Color.parseColor("#133468"));
+                prioritiseButton.setTextColor(Color.parseColor("#FFFFFF"));
+                spamButton.setTextColor(Color.parseColor("#FFFFFF"));
+                greetTheUser(v);
+            }
+        });
+
+
+
+        prioritiseButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (priorityResult == null){
+                    Toast.makeText(MainActivity.this, "moklay he...", Toast.LENGTH_SHORT).show();
+                }else {
+                    String[] prioparts = priorityResult.split("\\]\\[");
+                    final List<String> pList = new ArrayList<String>(Arrays.asList(prioparts));
+
+                    final ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, pList);
+
+                    listViewPrio.setAdapter(arrayAdapter1);
+                }
+
+                listViewPrio.setVisibility(View.VISIBLE);
+                lView.setVisibility(View.GONE);
+                listViewSpam.setVisibility(View.GONE);
+                mOut.setVisibility(View.GONE);
+                spinner.setVisibility(View.GONE);
+
+
+                prioritiseButton.setTextColor(Color.parseColor("#133468"));
+                prioritiseButton.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                callapi.setBackgroundColor(Color.parseColor("#133468"));
+                spamButton.setBackgroundColor(Color.parseColor("#133468"));
+                callapi.setTextColor(Color.parseColor("#FFFFFF"));
+                spamButton.setTextColor(Color.parseColor("#FFFFFF"));
+
+            }
+        });
+
+        spamButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//
+//                if (spamResultstring == null){
+//                    Toast.makeText(MainActivity.this, "moklay he...", Toast.LENGTH_SHORT).show();
+//                }else {
+//                    String[] spamparts = spamResultstring.split("\\]\\[");
+//                    for(int k=0;k<spamparts.length;k++)
+//                    {
+//                        System.out.println("Spam parts"+spamparts[k]);
+//                    }
+//                    final List<String> sList = new ArrayList<String>(Arrays.asList(spamparts));
+//
+//                    final ArrayAdapter<String> arrayAdapter2 = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, sList);
+//
+//                    listViewSpam.setAdapter(arrayAdapter2);
+//                }
+
+                if (spamResultstring == null){
+                    Toast.makeText(MainActivity.this, "moklay he...", Toast.LENGTH_SHORT).show();
+                }else {
+                    String[] spamparts = spamResultstring.split("\\] \\[");
+
+                    final  List<String> sList = new ArrayList<String>(Arrays.asList(spamparts));
+                    final ArrayAdapter<String> arrayAdapter2 = new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_list_item_1, sList);
+                    listViewSpam.setAdapter(arrayAdapter2);
+                }
+
+                listViewSpam.setVisibility(View.VISIBLE);
+                listViewPrio.setVisibility(View.GONE);
+                lView.setVisibility(View.GONE);
+                mOut.setVisibility(View.GONE);
+                spinner.setVisibility(View.GONE);
+
+                spamButton.setTextColor(Color.parseColor("#133468"));
+                spamButton.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                prioritiseButton.setBackgroundColor(Color.parseColor("#133468"));
+                callapi.setBackgroundColor(Color.parseColor("#133468"));
+                callapi.setTextColor(Color.parseColor("#FFFFFF"));
+                prioritiseButton.setTextColor(Color.parseColor("#FFFFFF"));
+
+            }
+        });
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, l);
 
         mOut = (TextView) findViewById(R.id.message);
         lView = (ListView) findViewById(R.id.listView);
 
-        spinner = (ProgressBar)findViewById(R.id.progressBar);
+        spinner = (ProgressBar) findViewById(R.id.progressBar);
         spinner.setVisibility(View.GONE);
         lView.setAdapter(arrayAdapter);
         lView.setOnItemClickListener(new OnItemClickListener() {
@@ -230,10 +372,10 @@ public String allEmails = " ";
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 Intent i = new Intent(getApplicationContext(), com.example.tensorflowtrial.InfoActivity.class);
-                i.putExtra("body",b.get(position));
+                i.putExtra("body", b.get(position));
                 i.putExtra("subject", l.get(position));
                 i.putExtra("from", fList.get(position));
-                i.putExtra("date",dateList.get(position));
+                i.putExtra("date", dateList.get(position));
                 startActivity(i);
             }
         });
@@ -276,11 +418,13 @@ public String allEmails = " ";
         show("Unknown error, click the button again");
     }
 
-    /** Called by button in the layout */
+    /**
+     * Called by button in the layout
+     */
     public void greetTheUser(View view) {
         getUsername();
-    }
 
+    }
 
 
     private void savePreferences(String key, String value) {
@@ -297,7 +441,8 @@ public String allEmails = " ";
         return name;
     }
 
-    /** Attempt to get the user name. If the email address isn't known yet,
+    /**
+     * Attempt to get the user name. If the email address isn't known yet,
      * then call pickUserAccount() method so the user can pick an account.
      */
 
@@ -313,7 +458,9 @@ public String allEmails = " ";
         }
     }
 
-    /** Starts an activity in Google Play Services so the user can pick an account */
+    /**
+     * Starts an activity in Google Play Services so the user can pick an account
+     */
     private void pickUserAccount() {
         String[] accountTypes = new String[]{"com.google"};
         Intent intent = AccountPicker.newChooseAccountIntent(null, null,
@@ -321,7 +468,9 @@ public String allEmails = " ";
         startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
     }
 
-    /** Checks whether the device currently has a network connection */
+    /**
+     * Checks whether the device currently has a network connection
+     */
     private boolean isDeviceOnline() {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -348,7 +497,7 @@ public String allEmails = " ";
 
 
     public void list(final ArrayList<String> l) {
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, l );
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, l);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -358,7 +507,7 @@ public String allEmails = " ";
         });
     }
 
-    public void showSpinner(){
+    public void showSpinner() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -367,7 +516,7 @@ public String allEmails = " ";
         });
     }
 
-    public void hideSpinner(){
+    public void hideSpinner() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -376,7 +525,7 @@ public String allEmails = " ";
         });
     }
 
-    public void setItemListener(final ArrayList<String> b, final ArrayList<String> s, /*, final ArrayList<String> fromList*/ArrayList<String> author, ArrayList<String> dateTimeList){
+    public void setItemListener(final ArrayList<String> b, final ArrayList<String> s, /*, final ArrayList<String> fromList*/ArrayList<String> author, ArrayList<String> dateTimeList) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -385,10 +534,10 @@ public String allEmails = " ";
                     public void onItemClick(AdapterView<?> parent, View view,
                                             int position, long id) {
                         Intent i = new Intent(getApplicationContext(), com.example.tensorflowtrial.InfoActivity.class);
-                        i.putExtra("body",b.get(position));
+                        i.putExtra("body", b.get(position));
                         i.putExtra("subject", s.get(position));
                         i.putExtra("from", fList.get(position));
-                        i.putExtra("date",dateList.get(position));
+                        i.putExtra("date", dateList.get(position));
                         // shreeya - PUT DATE, FROM TO , ETC HERE!!!!!!!!!
                         startActivity(i);
                     }
@@ -410,7 +559,7 @@ public String allEmails = " ";
                     // The Google Play services APK is old, disabled, or not present.
                     // Show a dialog created by Google Play services that allows
                     // the user to update the APK
-                    int statusCode = ((GooglePlayServicesAvailabilityException)e)
+                    int statusCode = ((GooglePlayServicesAvailabilityException) e)
                             .getConnectionStatusCode();
                     Dialog dialog = GooglePlayServicesUtil.getErrorDialog(statusCode,
                             MainActivity.this,
@@ -420,7 +569,7 @@ public String allEmails = " ";
                     // Unable to authenticate, such as when the user has not yet granted
                     // the app access to the account, but the user can fix this.
                     // Forward the user to an activity in Google Play services.
-                    Intent intent = ((UserRecoverableAuthException)e).getIntent();
+                    Intent intent = ((UserRecoverableAuthException) e).getIntent();
                     startActivityForResult(intent,
                             REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR);
                 }
@@ -464,8 +613,7 @@ public String allEmails = " ";
 
     }
 
-    public class SendingTask extends AsyncTask<String,String,String>
-    {
+    public class SendingPrioTask extends AsyncTask<String, String, String> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -481,21 +629,60 @@ public String allEmails = " ";
 
             try {
 
-                URL url=new URL(urlString);
-                HttpURLConnection connection=(HttpURLConnection) url.openConnection();
+                URL url = new URL(urlString);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.connect();
 
-                BufferedReader bfReader=new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                BufferedReader bfReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-                String value=bfReader.readLine();
-                priorityResult=value;
-                System.out.println("VALUE RECEIVED\n");
-                System.out.println(value);
+                String value = bfReader.readLine();
+                priorityResult = value;
+                System.out.println("VALUE PRIO RECEIVED\n");
+//                System.out.println(value);
+                System.out.println(priorityResult);
 
 
-            }catch (Exception e)
-            {
+
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+
+            return null;
+        }
+
+    }
+
+    public class SendingSpamTask extends AsyncTask<String, String, String> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+            try {
+
+                URL url = new URL(urlString);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.connect();
+
+                BufferedReader bfReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+                String valueSpam = bfReader.readLine();
+               spamResultstring = valueSpam;
+                System.out.println("VALUE SPAM RECEIVED\n");
+                System.out.println(valueSpam);
+
+
+            } catch (Exception e) {
                 System.out.println(e);
             }
 
@@ -506,4 +693,29 @@ public String allEmails = " ";
 
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+
+        switch (item.getItemId()) {
+
+            case R.id.sendToPriority:
+                sendPrio.performClick();
+                Toast.makeText(MainActivity.this, "sending prio data to flask...", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.sendToSpam:
+                sendSpam.performClick();
+                Toast.makeText(MainActivity.this, "sending spam data to flask...", Toast.LENGTH_SHORT).show();
+                break;
+        }
+        return true;
+    }
 }

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AEMAIL</string>
+    <string name="title_activity_spam">SpamActivity</string>
 </resources>
